@@ -16,5 +16,16 @@ SDAccel2018.2要安装的库很多，需要一个个安装（建议用这个方�
     正常情况下，会报错，缺少文件，需要在`opt/Xilinx/SDx/2018.2/settings64.sh`中添加`export CPATH=/usr/include/x86_64-linux-gnu`，关闭，重新
 `source settings64.sh`，然后再打开SDAccel2018.2，执行硬件仿真。
 ##系统仿真
-    这个仿真的时间比较长，要耐心等待，`build`没有报错，`run`会报
+    这个仿真的时间比较长，约1小时18分支，`build`没有报错，`run`会报`xcl2`错误，不要担心，是因为未安装板卡。
+#用Vivado检查硬件
+    在检查硬件之前，需要安装JTAG驱动，如下
+1.命令行切换到root目录：
+#sudo -s
+2.去vivado的安装目录下，我的是/xilinx/Vivado/2018.2/data/xicom/cable_drivers/lin64 找到文件夹install_script
+3.将文件夹 install_script拷贝到/opt目录下
+4.因为现在是root目录，所以cd到/xilinx/Vivado/2018.2/data/xicom/cable_drivers/lin64目录下，直接运行命令：
+#cp -r install_script /opt
+5.将目录切换到/opt/install_script/install_drivers/ 目录下，运行命令：
+#./install_drivers
+6.重新拔掉JTAG，然后在插上，就能找到板卡了。
 

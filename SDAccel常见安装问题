@@ -20,12 +20,27 @@ SDAccel2018.2要安装的库很多，需要一个个安装（建议用这个方�
 #用Vivado检查硬件
     在检查硬件之前，需要安装JTAG驱动，如下
 1.命令行切换到root目录：
-#sudo -s
+`#sudo -s`
 2.去vivado的安装目录下，我的是/xilinx/Vivado/2018.2/data/xicom/cable_drivers/lin64 找到文件夹install_script
 3.将文件夹 install_script拷贝到/opt目录下
 4.因为现在是root目录，所以cd到/xilinx/Vivado/2018.2/data/xicom/cable_drivers/lin64目录下，直接运行命令：
-#cp -r install_script /opt
+`#cp -r install_script /opt`
 5.将目录切换到/opt/install_script/install_drivers/ 目录下，运行命令：
-#./install_drivers
+`#./install_drivers`
 6.重新拔掉JTAG，然后在插上，就能找到板卡了。
+#安装KCU1500板卡
+1、在执行`$ xbinst --platform xilinx_vcu1525_dynamic_5_1 -d`时，会报错，找不到，需要打开SDAccel的安装路径找到 SDx/2018.2/bin 目录下，空白处右
+键->点击在终端打开->输入`sudo ./xbinst --platform xilinx_vcu1525_dynamic_5_1 -d /opt/dsa/xilinx_vcu1525_dynamic_5_1`就可以了。
+2、在执行`$ sudo ./install.sh -f yes `时，也会报错，runtime未安装或更新，这个比较麻烦。
+   2.1、首先要重启，将secure_boot设置为disable。
+   2.2、下载timer.h文件添加到 /usr/include/linux/ 路径下。下载地址：`https://elixir.bootlin.com/linux/v4.15/source/include/linux/timer.h`
+   2.3、更改qdma_mbox.c、xocl_drm.c、xocl_bo.c三个文件。
+        2.3.1、在`/opt/dsa/xilinx_paltform_5_1/xbinst/runtime/platforms/xilinx_vcu1525_dynamic_5_1/driver`目录下，将xocl.zip解压，即在终端
+打开后，输入命令：`sudo unzip xocl.zip`解压后是一个driver文件夹,进入路径：
+`/opt/dsa/xilinx_vcu1525_dynamic_5_1/xbinst/runtime/platforms/xilinx_vcu1525_dynamic_5_1/driver/driver/xclng/drm/xocl/lib/`找到qdma_mbox.c
+文件,空白处右键 `open in terminal`在终端输入命令：`sudo chmod a+w qdma_mbox.c`来更改权限;然后输入命令：`sudo gedit qdma_mbox.c`编辑文件，找到
+499行的`init_timer(timer);``timer->data = (unsigned long)xdev;`将这两行用`timer_setup(timer, timer->function, 0);`替换。215行的
+`static void qdma_mbox_proc(unsigned long arg)`用`static void qdma_mbox_proc(struct timer_list *arg /* unsigned long arg */)`替换，324行的
+`static void qdma_mbox_proc(unsigned long arg`用`static void qdma_mbox_proc(struct timer_list *arg /* unsigned long arg */)`替换，然后保存。
+将原来的压缩包xocl.zip删除，命令：`sudo rm -rf xocl.zip`然后，将新更改的driver压缩为xocl.zip,命令：`sudo zip -r xocl.zip ./driver`。
 
